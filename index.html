@@ -1,0 +1,143 @@
+<html language="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="description" content="Our Security Team is Always Watching You!"><!--What could go wrong?-->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Employment Opportunities</title>
+  <link rel="stylesheet" href="index.css">
+  <link rel="icon" href="favicon.ico" />
+  <script src="cctv.js"></script>
+  <script src="utils.js"></script>
+  <script>
+
+    const handleFileUpload = () => {
+      let cctv;
+      const input = document.querySelector("#upload");
+      const canvas = document.querySelector("#canvas");
+      const buffer = document.createElement("canvas");
+      buffer.width = 500;
+      buffer.height = 500;
+      const body = document.querySelector("body");
+
+      const widthInput = document.querySelector("#width");
+
+      widthInput.onchange = ()=>{
+        canvas.width = widthInput.value;
+        canvas.height = widthInput.value;
+        buffer.width = widthInput.value;
+        buffer.height = widthInput.value;
+
+      }
+
+
+
+
+      input.onchange = async (e) => {
+        console.log("JR NOTE: file?", e.target)
+        display_screen = new CCTV(null, canvas);
+        try {
+          console.log("JR NOTE: trying")
+          var img = new Image();
+          body.append(img);
+          img.onload = async () => {
+            console.log("JR NOTE: image loaded")
+            const ctx = buffer.getContext("2d");
+            if(img.height < img.width){
+              const ratio = buffer.width/img.width;
+              const width = img.width*ratio;
+              const height = buffer.height;
+              buffer.width = width;
+              buffer.heighti = height;
+              console.log("JR NOTE: width bigger buffer is", {width,height})
+              ctx.drawImage(img,0,0,width, height);
+
+            }else{
+              const ratio = buffer.height/img.height;
+              const width = buffer.width;
+              const height = img.height*ratio;
+              buffer.width = width;
+              buffer.heighti = height;
+              console.log("JR NOTE: height bigger buffer is", {width,height})
+              ctx.drawImage(img,0,0,width, height);
+
+            }
+            cctv = await setUpCCTVFromImageEle(canvas, buffer);
+
+            console.log("JR NOTE: cctv")
+            cctv.play();
+
+          };
+          img.onerror = (e) => {
+            alert("ERROR: try a different file?")
+            console.error(e)
+
+          };
+          img.src = URL.createObjectURL(e.target.files[0]);
+          console.log("JR NOTE: src")
+
+
+        } catch (e) {
+          alert("ERROR: try a different file?")
+          console.error(e)
+        }
+      }
+    }
+    //https://stackoverflow.com/questions/8890064/html5-image-upload
+    window.onload = async () => {
+      handleFileUpload();
+      return;
+      
+    }
+
+    
+
+    const setUpCCTVFromImageEle = async (canvas, image) => {
+      console.log("JR NOTE: chosen image is", image)
+      try {
+        const frames = [];
+        frames.push(new AnimationFrame(image, 1));
+        const feed = new CameraFeed(0, frames);
+        const cctv = new CCTV(feed, canvas);
+        cctv.setReadyToPlay(true);
+        return cctv;
+      } catch (e) {
+        console.error("ERROR SETTING UP CCTV FEED!", e, src)
+        return null;
+      }
+    }
+
+    const setUpCCTV = async (canvas, src) => {
+      console.log("JR NOTE: chosen src is", src)
+      try {
+        const frames = [];
+        const image = await addImageProcess(src);
+        frames.push(new AnimationFrame(image, 1));
+        const feed = new CameraFeed(0, frames);
+        const cctv = new CCTV(feed, canvas);
+        cctv.setReadyToPlay(true);
+        return cctv;
+      } catch (e) {
+        console.error("ERROR SETTING UP CCTV FEED!", e, src)
+        return null;
+      }
+    }
+  </script>
+
+</head>
+
+
+<body class="ominous">
+  <h1>UPLOAD FILE TO CONVERT TO SIMULATED SPOOKY CCTV</h1>
+  <p>(you can save stills from it, but if you want it animated you'll need to do a video screencapture))</p>
+  <p>multiple files will be a cool glitch effect. refresh page if you dont want that</p>
+  <input id="upload" type="file" />
+  <p>>Size: <input id="width" type="number" max="2000" min="100" value="500"/></p>
+
+  <div id="container">
+    <canvas id="canvas" width="500" height="500" />
+  </div>
+</body>
+
+</html>
