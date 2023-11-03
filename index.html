@@ -12,7 +12,15 @@
   <script src="utils.js"></script>
   <script>
 
+    let globalLabel = new Date().toLocaleDateString();
+
     const handleFileUpload = () => {
+      const labelInput = document.querySelector("#label");
+      labelInput.value = globalLabel;
+
+      labelInput.onchange = ()=>{
+        globalLabel = labelInput.value;
+      }
       let cctv;
       const input = document.querySelector("#upload");
       const canvas = document.querySelector("#canvas");
@@ -22,6 +30,7 @@
       const body = document.querySelector("body");
 
       const widthInput = document.querySelector("#width");
+
 
       widthInput.onchange = ()=>{
         canvas.width = widthInput.value;
@@ -133,7 +142,8 @@
   <p>(you can save stills from it, but if you want it animated you'll need to do a video screencapture))</p>
   <p>multiple files will be a cool glitch effect. refresh page if you dont want that</p>
   <input id="upload" type="file" />
-  <p>>Size: <input id="width" type="number" max="2000" min="100" value="500"/></p>
+  <p>Size: <input id="width" type="number" max="2000" min="100" value="500"/></p>
+  <p>Label: <input id="label" value="C1"/></p>
 
   <div id="container">
     <canvas id="canvas" width="500" height="500" />
